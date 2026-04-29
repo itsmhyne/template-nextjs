@@ -18,6 +18,7 @@ import { Input } from "@/components/ui/input";
 import { useAuthStore } from "../../stores/auth.store";
 import { useState } from "react";
 import { registerAction } from "../../services/auth.service";
+import Link from "next/link";
 
 export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
   const { setLoading, isLoading, error, setError } = useAuthStore();
@@ -86,10 +87,10 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
                   setFormData({ ...formData, email: e.target.value })
                 }
               />
-              <FieldDescription>
+              {/* <FieldDescription>
                 We&apos;ll use this to contact you. We will not share your email
                 with anyone else.
-              </FieldDescription>
+              </FieldDescription> */}
             </Field>
             <Field>
               <FieldLabel htmlFor="password">Password</FieldLabel>
@@ -118,11 +119,8 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
                 <Button type="submit" disabled={isLoading}>
                   {isLoading ? "Memproses..." : "Create Acoount"}
                 </Button>
-                <Button variant="outline" type="button">
-                  Sign up with Google
-                </Button>
                 <FieldDescription className="px-6 text-center">
-                  Already have an account? <a href="#">Sign in</a>
+                  Already have an account? <Link href="/login">Sign in</Link>
                 </FieldDescription>
               </Field>
             </FieldGroup>

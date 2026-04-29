@@ -7,6 +7,7 @@ import {
   logoutAction,
 } from "../../../../services/auth.service";
 import { useEffect } from "react";
+import { Button } from "@/components/ui/button";
 
 export default function Page() {
   const router = useRouter();
@@ -31,21 +32,20 @@ export default function Page() {
 
   if (!user) {
     return (
-      <div className="h-screen w-full justify-center items-center">
-        <h6>Loading...su</h6>
+      <div className="h-screen w-full justify-center items-center flex">
+        <h6>Loading...</h6>
       </div>
     );
   }
 
   return (
     <div className="h-screen w-full justify-center items-center flex flex-col">
-      <span>Halo, {user.name || user.email}!</span>
-      <button
-        onClick={handleLogout}
-        className="px-4 py-2 text-sm text-white bg-red-600 rounded hover:bg-red-700"
-      >
+      <h1 className="text-5xl font-bold leading-relaxed">
+        Halo, {user.name || user.email}!
+      </h1>
+      <Button type="submit" onClick={handleLogout} variant="destructive">
         Logout
-      </button>
+      </Button>
     </div>
   );
 }

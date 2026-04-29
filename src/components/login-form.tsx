@@ -29,8 +29,8 @@ export function LoginForm({
   const router = useRouter();
   const { setLoading, isLoading, setError } = useAuthStore();
   const [formData, setFormData] = useState({
-    email: "",
-    password: "",
+    email: "developer@dev.com",
+    password: "password",
   });
 
   useEffect(() => {
