@@ -21,77 +21,45 @@ import { useAuthStore } from "../../stores/auth.store";
 import { useEffect, useState } from "react";
 import { loginAction } from "../../services/auth.service";
 import Link from "next/link";
-
+import { ResponseType } from "../../types/response.type";
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
   const router = useRouter();
-  const { setLoading, isLoading, setError } = useAuthStore();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
   const [formData, setFormData] = useState({
-    email: "developer@dev.com",
-    password: "password",
+    email: "",
+    password: "",
   });
-
-  useEffect(() => {
-    let timeoutId: NodeJS.Timeout;
-
-    if (isLoading) {
-      timeoutId = setTimeout(() => {
-        // Cek apakah masih loading setelah timeout
-        if (useAuthStore.getState().isLoading) {
-          setLoading(false);
-          setError("Login timeout, silakan coba lagi");
-        }
-      }, 10000); // 10 detik timeout
-    }
-
-    return () => clearTimeout(timeoutId);
-  }, [isLoading, setLoading, setError]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
+    setError("");
 
-    // Set loading state
-    setLoading(true);
-    setError(null);
-
-    // Validasi client-side dulu
-    if (!formData.email || !formData.password) {
-      setError("Email dan password wajib diisi");
-      setLoading(false);
-      return;
-    }
+    const form = new FormData();
+    form.append("email", formData.email);
+    form.append("password", formData.password);
 
     try {
-      const form = new FormData();
-      form.append("email", formData.email);
-      form.append("password", formData.password);
+      const result: ResponseType = await loginAction(form);
 
-      // Panggil server action
-      const result = await loginAction(form);
+      console.log("Login result:", result);
 
-      // Jika server action mengembalikan error
-      if (result && "error" in result) {
-        setError(result.error);
-        setLoading(false);
-        return;
+      if (result.success) {
+        // ✅ Redirect manual di client
+        router.push(result.redirectTo);
+        router.refresh();
+      } else {
+        setError(result.error || "Login gagal");
+        setIsLoading(false);
       }
-
-      // Jika sukses, redirect akan terjadi di server action
-      // Tapi kita perlu handle kemungkinan redirect tidak terjadi
-      router.push("/dashboard");
     } catch (error) {
-      // Redirect akan menyebabkan error, tapi itu normal
-      // Kita cek apakah error karena redirect
       console.error("Login error:", error);
-      setLoading(false);
-    } finally {
-      // Jangan lupa reset loading jika tidak terjadi redirect
-      // Set timeout untuk kasus redirect tidak terjadi
-      setTimeout(() => {
-        setLoading(false);
-      }, 3000);
+      setError("Terjadi kesalahan saat login");
+      setIsLoading(false);
     }
   };
 

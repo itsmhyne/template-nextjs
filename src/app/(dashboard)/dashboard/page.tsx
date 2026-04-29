@@ -8,6 +8,7 @@ import {
 } from "../../../../services/auth.service";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { LogoutButton } from "@/components/logout-button";
 
 export default function Page() {
   const router = useRouter();
@@ -25,11 +26,6 @@ export default function Page() {
     loadUser();
   }, [router, setUser]);
 
-  const handleLogout = async () => {
-    clearAuth();
-    await logoutAction();
-  };
-
   if (!user) {
     return (
       <div className="h-screen w-full justify-center items-center flex">
@@ -43,9 +39,7 @@ export default function Page() {
       <h1 className="text-5xl font-bold leading-relaxed">
         Halo, {user.name || user.email}!
       </h1>
-      <Button type="submit" onClick={handleLogout} variant="destructive">
-        Logout
-      </Button>
+      <LogoutButton />
     </div>
   );
 }

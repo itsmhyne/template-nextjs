@@ -58,8 +58,10 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
 
       if (result && result.success) {
         // Redirect ke dashboard
-        router.push("/dashboard");
-        router.refresh(); // Refresh server components
+        // router.push("/dashboard");
+        // Refresh server components
+        router.push(result.redirectTo);
+        router.refresh();
       } else if (result && result.error) {
         setError(result.error);
         setLoading(false);
