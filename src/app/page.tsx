@@ -33,17 +33,17 @@ export default function Example() {
               <h2 className="text-base/7 font-semibold text-indigo-400">
                 Template NextJs with Bun 🧅
               </h2>
-              <p className="mt-2 text-4xl font-semibold tracking-tight text-pretty text-black sm:text-5xl">
+              <p className="mt-2 text-4xl font-semibold tracking-tight text-pretty  sm:text-5xl">
                 A better template<sup className="text-xs">kali</sup>
               </p>
-              <p className="mt-6 text-lg/8 text-black-300">
+              <p className="mt-6 text-lg/8 ">
                 Sebuah template autentikasi yang dibangun dengan NextJs, Prisma,
                 PostgreSQL, dan state manajemen Zustand.
               </p>
-              <dl className="mt-10 max-w-xl space-y-8 text-base/7 text-black-400 lg:max-w-none">
+              <dl className="mt-10 max-w-xl space-y-8 text-base/7 lg:max-w-none">
                 {features.map((feature) => (
                   <div key={feature.name} className="relative pl-9">
-                    <dt className="inline font-semibold text-black">
+                    <dt className="inline font-semibold ">
                       <feature.icon
                         aria-hidden="true"
                         className="absolute top-1 left-1 size-5 text-indigo-400"
@@ -61,7 +61,7 @@ export default function Example() {
             src="https://tailwindcss.com/plus-assets/img/component-images/dark-project-app-screenshot.png"
             width={2432}
             height={1442}
-            className="w-3xl max-w-none rounded-xl shadow-xl ring-1 ring-white/10 sm:w-228 md:-ml-4 lg:-ml-0"
+            className="w-3xl max-w-none rounded-xl shadow-xl ring-1 ring-white/10 sm:w-228 md:-ml-4 lg:ml-0"
           />
         </div>
       </div>

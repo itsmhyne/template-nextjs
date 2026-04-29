@@ -9,6 +9,7 @@ import {
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { LogoutButton } from "@/components/logout-button";
+import { ThemeToogle } from "@/components/theme-toogle";
 
 export default function Page() {
   const router = useRouter();
@@ -35,11 +36,12 @@ export default function Page() {
   }
 
   return (
-    <div className="h-screen w-full justify-center items-center flex flex-col">
+    <div className="h-screen w-full justify-center items-center flex flex-col gap-5">
       <h1 className="text-5xl font-bold leading-relaxed">
         Halo, {user.name || user.email}!
       </h1>
       <LogoutButton />
+      <ThemeToogle />
     </div>
   );
 }
