@@ -21,6 +21,9 @@ const registerSchema = z.object({
   name: z.string().min(2, "Nama minimal 2 karakter"),
   email: z.string().email("Email tidak valid"),
   password: z.string().min(6, "Password minimal 6 karakter"),
+  gender: z.enum(["LAKI_LAKI", "PEREMPUAN"], {
+    error: "Gender harus dipilih",
+  }),
 });
 
 export async function loginAction(formData: FormData) {
@@ -71,42 +74,57 @@ export async function loginAction(formData: FormData) {
 }
 
 export async function registerAction(formData: FormData) {
-  const rawData = {
-    name: formData.get("name"),
-    email: formData.get("email"),
-    password: formData.get("password"),
-  };
+  try {
+    const rawData = {
+      name: formData.get("name"),
+      email: formData.get("email"),
+      password: formData.get("password"),
+      gender: formData.get("gender"),
+    };
 
-  const result = registerSchema.safeParse(rawData);
+    console.log("Received data:", rawData); // Debug log
 
-  if (!result.success) {
-    return { error: result.error.message };
+    const result = registerSchema.safeParse(rawData);
+
+    if (!result.success) {
+      console.error("Validation error:", result.error);
+      return { error: result.error.message || "Validasi gagal" };
+    }
+
+    const { name, email, password, gender } = result.data;
+
+    // Cek user sudah ada
+    const existingUser = await prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (existingUser) {
+      return { error: "Email sudah terdaftar" };
+    }
+
+    const hashedPassword = await hashPassword(password);
+
+    // Create user dengan gender
+    const user = await prisma.user.create({
+      data: {
+        name,
+        email,
+        password: hashedPassword,
+        gender: (gender as any) || null,
+      },
+    });
+
+    console.log("User created:", { id: user.id, gender: user.gender }); // Debug log
+
+    const token = await createSession(user.id);
+    await setSessionCookie(token);
+
+    // Gunakan return instead of redirect untuk client-side navigation
+    return { success: true, redirectTo: "/dashboard" };
+  } catch (error) {
+    console.error("Registration error:", error);
+    return { error: "Terjadi kesalahan saat registrasi" };
   }
-
-  const { name, email, password } = result.data;
-
-  const existingUser = await prisma.user.findUnique({
-    where: { email },
-  });
-
-  if (existingUser) {
-    return { error: "Email sudah terdaftar" };
-  }
-
-  const hashedPassword = await hashPassword(password);
-
-  const user = await prisma.user.create({
-    data: {
-      name,
-      email,
-      password: hashedPassword,
-    },
-  });
-
-  const token = await createSession(user.id);
-  await setSessionCookie(token);
-
-  redirect("/dashboard");
 }
 
 export async function logoutAction() {

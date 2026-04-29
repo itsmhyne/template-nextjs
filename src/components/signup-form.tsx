@@ -19,13 +19,25 @@ import { useAuthStore } from "../../stores/auth.store";
 import { useState } from "react";
 import { registerAction } from "../../services/auth.service";
 import Link from "next/link";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
+import { useRouter } from "next/navigation";
 
 export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
+  const router = useRouter();
   const { setLoading, isLoading, error, setError } = useAuthStore();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
+    gender: "",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -35,12 +47,28 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
 
     const form = new FormData();
     form.append("name", formData.name);
+    form.append("gender", formData.gender);
     form.append("email", formData.email);
     form.append("password", formData.password);
 
     try {
-      await registerAction(form);
+      const result = await registerAction(form);
+
+      console.log("Register result:", result); // Debug
+
+      if (result && result.success) {
+        // Redirect ke dashboard
+        router.push("/dashboard");
+        router.refresh(); // Refresh server components
+      } else if (result && result.error) {
+        setError(result.error);
+        setLoading(false);
+      } else {
+        setError("Registrasi gagal, silakan coba lagi");
+        setLoading(false);
+      }
     } catch (error) {
+      console.error("Register error:", error);
       setError("Registrasi gagal, silakan coba lagi");
       setLoading(false);
     }
@@ -74,6 +102,25 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
                   setFormData({ ...formData, name: e.target.value })
                 }
               />
+            </Field>
+            <Field>
+              <FieldLabel htmlFor="gender">Gender</FieldLabel>
+              <Select
+                onValueChange={(value) =>
+                  setFormData({ ...formData, gender: value })
+                }
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select a gender" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectLabel>Choose One</SelectLabel>
+                    <SelectItem value="LAKI_LAKI">MALE</SelectItem>
+                    <SelectItem value="PEREMPUAN">FEMALE</SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
             </Field>
             <Field>
               <FieldLabel htmlFor="email">Email</FieldLabel>
@@ -117,7 +164,7 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
             <FieldGroup>
               <Field>
                 <Button type="submit" disabled={isLoading}>
-                  {isLoading ? "Memproses..." : "Create Acoount"}
+                  {isLoading ? "Memproses..." : "Create Account"}
                 </Button>
                 <FieldDescription className="px-6 text-center">
                   Already have an account? <Link href="/login">Sign in</Link>

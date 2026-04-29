@@ -41,6 +41,7 @@ export async function getSession() {
           id: true,
           email: true,
           name: true,
+          gender: true,
         },
       },
     },
