@@ -22,66 +22,46 @@ import { useEffect, useState } from "react";
 import { loginAction } from "../../services/auth.service";
 import Link from "next/link";
 import { ResponseType } from "../../types/response.type";
-import { Alert, AlertDescription } from "./ui/alert";
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
   const router = useRouter();
-  const { login, setLoading, isLoading, error, setError } = useAuthStore();
-
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
+  const { setUser } = useAuthStore();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    // Clear error ketika user mulai mengetik
-    if (error) setError(null);
-  };
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
+    setError("");
 
-    // Validasi client-side
-    if (!formData.email || !formData.password) {
-      setError("Email dan password harus diisi");
-      return;
-    }
-
-    // Set loading state
-    setLoading(true);
-    setError(null);
+    const form = new FormData();
+    form.append("email", formData.email);
+    form.append("password", formData.password);
 
     try {
-      // Buat FormData untuk server action
-      const formDataObj = new FormData();
-      formDataObj.append("email", formData.email);
-      formDataObj.append("password", formData.password);
+      const result: ResponseType = await loginAction(form);
 
-      // Panggil server action
-      const result = await loginAction(formDataObj);
+      console.log("Login result:", result);
 
-      if (result.success && result.data) {
-        // Login success - update store
-        login(result.data);
-
-        // Redirect ke dashboard
-        router.push("/dashboard");
-        router.refresh(); // Refresh server components
+      if (result.success) {
+        // ✅ Redirect manual di client
+        setUser(result.data);
+        router.push(result.redirectTo);
+        router.refresh();
       } else {
-        // Login failed
-        console.log("Login error:", result);
-
-        setError("Login gagal, silakan coba lagi");
-        setLoading(false);
+        setError(result.error || "Login gagal");
+        setIsLoading(false);
       }
-    } catch (err) {
-      console.error("Login error:", err);
-      setError("Terjadi kesalahan. Silakan coba lagi nanti.");
-      setLoading(false);
+    } catch (error) {
+      console.error("Login error:", error);
+      setError("Terjadi kesalahan saat login");
+      setIsLoading(false);
     }
   };
 
@@ -96,19 +76,23 @@ export function LoginForm({
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit}>
+            {useAuthStore.getState().error && (
+              <div className="bg-red-50 text-red-500 p-3 rounded text-sm">
+                {useAuthStore.getState().error}
+              </div>
+            )}
             <FieldGroup>
               <Field>
                 <FieldLabel htmlFor="email">Email</FieldLabel>
                 <Input
                   id="email"
                   type="email"
-                  name="email"
                   placeholder="m@example.com"
                   required
                   value={formData.email}
-                  onChange={handleChange}
-                  disabled={isLoading}
-                  autoComplete="email"
+                  onChange={(e) =>
+                    setFormData({ ...formData, email: e.target.value })
+                  }
                 />
               </Field>
               <Field>
@@ -124,12 +108,11 @@ export function LoginForm({
                 <Input
                   id="password"
                   type="password"
-                  name="password"
-                  placeholder="*******"
                   required
                   value={formData.password}
-                  onChange={handleChange}
-                  autoComplete="current-password"
+                  onChange={(e) =>
+                    setFormData({ ...formData, password: e.target.value })
+                  }
                 />
               </Field>
               <Field>
@@ -143,12 +126,6 @@ export function LoginForm({
               </Field>
             </FieldGroup>
           </form>
-          {/* Error Alert */}
-          {error && (
-            <Alert variant="destructive">
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
         </CardContent>
       </Card>
     </div>

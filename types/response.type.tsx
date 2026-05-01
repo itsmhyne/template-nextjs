@@ -1,3 +1,3 @@
-export type ResponseType =
-  | { success: true; redirectTo: string; data?: [] }
+export type ResponseType<T = any> =
+  | { success: true; redirectTo: string; data?: T }
   | { success: false; error: string };

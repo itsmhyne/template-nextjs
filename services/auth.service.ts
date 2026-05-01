@@ -36,41 +36,37 @@ export async function loginAction(formData: FormData): Promise<ResponseType> {
     };
 
     const result = loginSchema.safeParse(rawData);
-
     if (!result.success) {
-      return {
-        success: false,
-        error: result.error.message,
-      };
+      return { success: false, error: result.error.message };
     }
 
     const { email, password } = result.data;
-
-    const user = await prisma.user.findUnique({
-      where: { email },
-    });
+    const user = await prisma.user.findUnique({ where: { email } });
 
     if (!user || !user.password) {
-      return {
-        success: false,
-        error: "Email atau password salah",
-      };
+      return { success: false, error: "Email atau password salah" };
     }
 
     const isValid = await verifyPassword(password, user.password);
-
     if (!isValid) {
-      return {
-        success: false,
-        error: "Email atau password salah",
-      };
+      return { success: false, error: "Email atau password salah" };
     }
 
+    // Buat session
     const token = await createSession(user.id);
     await setSessionCookie(token);
 
-    // ✅ Return success instead of redirect
-    return { success: true, redirectTo: "/dashboard" as string };
+    // ✅ Kembalikan data user
+    return {
+      success: true,
+      redirectTo: "/dashboard",
+      data: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        gender: user.gender,
+      },
+    };
   } catch (error) {
     console.error("Login error:", error);
     return { success: false, error: "Terjadi kesalahan saat login" };
