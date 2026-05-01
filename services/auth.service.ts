@@ -118,12 +118,21 @@ export async function registerAction(
       },
     });
 
-    console.log("User created:", { id: user.id, gender: user.gender });
+    await deleteSession();
 
     const token = await createSession(user.id);
     await setSessionCookie(token);
 
-    return { success: true, redirectTo: "/dashboard" };
+    return {
+      success: true,
+      redirectTo: "/dashboard",
+      data: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        gender: user.gender,
+      },
+    };
   } catch (error) {
     console.error("Registration error:", error);
     return { success: false, error: "Terjadi kesalahan saat registrasi" };

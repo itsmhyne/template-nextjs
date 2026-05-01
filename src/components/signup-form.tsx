@@ -33,6 +33,7 @@ import { useRouter } from "next/navigation";
 export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
   const router = useRouter();
   const { setLoading, isLoading, error, setError } = useAuthStore();
+  const { logout, clearAuth } = useAuthStore(); // ✅ Ambil logout function
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -44,6 +45,8 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
     e.preventDefault();
     setLoading(true);
     setError(null);
+
+    await logout();
 
     const form = new FormData();
     form.append("name", formData.name);
@@ -57,9 +60,7 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
       console.log("Register result:", result); // Debug
 
       if (result && result.success) {
-        // Redirect ke dashboard
-        // router.push("/dashboard");
-        // Refresh server components
+        useAuthStore.getState().login(result.data);
         router.push(result.redirectTo);
         router.refresh();
       } else if (result && result.error) {

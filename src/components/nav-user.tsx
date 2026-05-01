@@ -32,8 +32,6 @@ export function NavUser() {
 
   const user = useAuthStore((state) => state.user);
 
-  console.log("User from store:", user);
-
   // Jika user belum ada, tampilkan loading atau placeholder
   if (!user) {
     return (
