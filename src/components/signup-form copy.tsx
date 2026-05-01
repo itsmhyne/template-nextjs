@@ -30,9 +30,10 @@ import {
 } from "./ui/select";
 import { useRouter } from "next/navigation";
 
-export function SignupForm({ ...props }: React.ComponentType<typeof Card>) {
+export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
   const router = useRouter();
-  const { setLoading, isLoading, error, setError, login } = useAuthStore(); // ✅ Ambil login dari store
+  const { setLoading, isLoading, error, setError } = useAuthStore();
+  const { logout, clearAuth } = useAuthStore(); // ✅ Ambil logout function
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -42,21 +43,10 @@ export function SignupForm({ ...props }: React.ComponentType<typeof Card>) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    // ✅ Validasi gender sebelum submit
-    if (!formData.gender) {
-      setError("Gender harus dipilih");
-      return;
-    }
-
-    // ✅ Validasi password length
-    if (formData.password.length < 6) {
-      setError("Password minimal 6 karakter");
-      return;
-    }
-
     setLoading(true);
     setError(null);
+
+    await logout();
 
     const form = new FormData();
     form.append("name", formData.name);
@@ -67,11 +57,10 @@ export function SignupForm({ ...props }: React.ComponentType<typeof Card>) {
     try {
       const result = await registerAction(form);
 
-      console.log("Register result:", result);
+      console.log("Register result:", result); // Debug
 
       if (result && result.success) {
-        // ✅ Perbaiki: result.user bukan result.data
-        login(result.data);
+        useAuthStore.getState().login(result.data);
         router.push(result.redirectTo);
         router.refresh();
       } else if (result && result.error) {
@@ -99,7 +88,7 @@ export function SignupForm({ ...props }: React.ComponentType<typeof Card>) {
       <CardContent>
         <form onSubmit={handleSubmit}>
           {error && (
-            <div className="bg-red-50 text-red-500 p-3 rounded text-sm mb-4">
+            <div className="bg-red-50 text-red-500 p-3 rounded text-sm">
               {error}
             </div>
           )}
@@ -111,22 +100,18 @@ export function SignupForm({ ...props }: React.ComponentType<typeof Card>) {
                 type="text"
                 placeholder="John Doe"
                 required
-                disabled={isLoading}
                 value={formData.name}
                 onChange={(e) =>
                   setFormData({ ...formData, name: e.target.value })
                 }
               />
             </Field>
-
             <Field>
               <FieldLabel htmlFor="gender">Gender</FieldLabel>
               <Select
-                value={formData.gender}
                 onValueChange={(value) =>
                   setFormData({ ...formData, gender: value })
                 }
-                disabled={isLoading}
               >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select a gender" />
@@ -140,7 +125,6 @@ export function SignupForm({ ...props }: React.ComponentType<typeof Card>) {
                 </SelectContent>
               </Select>
             </Field>
-
             <Field>
               <FieldLabel htmlFor="email">Email</FieldLabel>
               <Input
@@ -148,43 +132,42 @@ export function SignupForm({ ...props }: React.ComponentType<typeof Card>) {
                 type="email"
                 placeholder="m@example.com"
                 required
-                disabled={isLoading}
                 value={formData.email}
                 onChange={(e) =>
                   setFormData({ ...formData, email: e.target.value })
                 }
               />
+              {/* <FieldDescription>
+                We&apos;ll use this to contact you. We will not share your email
+                with anyone else.
+              </FieldDescription> */}
             </Field>
-
             <Field>
               <FieldLabel htmlFor="password">Password</FieldLabel>
               <Input
                 id="password"
                 type="password"
-                placeholder="********"
                 required
-                disabled={isLoading}
                 value={formData.password}
                 onChange={(e) =>
                   setFormData({ ...formData, password: e.target.value })
                 }
               />
               <FieldDescription>
-                Must be at least 6 characters long.
+                Must be at least 8 characters long.
               </FieldDescription>
             </Field>
-
+            {/* <Field>
+              <FieldLabel htmlFor="confirm-password">
+                Confirm Password
+              </FieldLabel>
+              <Input id="confirm-password" type="password" required />
+              <FieldDescription>Please confirm your password.</FieldDescription>
+            </Field> */}
             <FieldGroup>
               <Field>
                 <Button type="submit" disabled={isLoading}>
-                  {isLoading ? (
-                    <div className="flex items-center gap-2">
-                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                      <span>Memproses...</span>
-                    </div>
-                  ) : (
-                    "Create Account"
-                  )}
+                  {isLoading ? "Memproses..." : "Create Account"}
                 </Button>
                 <FieldDescription className="px-6 text-center">
                   Already have an account? <Link href="/login">Sign in</Link>
