@@ -86,7 +86,7 @@ export async function registerAction(
       gender: formData.get("gender"),
     };
 
-    console.log("Received data:", rawData);
+    // console.log("Received data:", rawData);
 
     const result = registerSchema.safeParse(rawData);
 

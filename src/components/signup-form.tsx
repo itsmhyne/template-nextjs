@@ -15,7 +15,7 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { useAuthStore } from "../../stores/auth.store";
+import { useAuthStore } from "@/stores/auth.store";
 import { useState } from "react";
 import { registerAction } from "../../services/auth.service";
 import Link from "next/link";
@@ -30,7 +30,9 @@ import {
 } from "./ui/select";
 import { useRouter } from "next/navigation";
 
-export function SignupForm({ ...props }: React.ComponentType<typeof Card>) {
+export default function SignupForm({
+  ...props
+}: React.ComponentProps<typeof Card>) {
   const router = useRouter();
   const { setLoading, isLoading, error, setError, login } = useAuthStore(); // ✅ Ambil login dari store
   const [formData, setFormData] = useState({
