@@ -23,6 +23,7 @@ import { loginAction } from "../../services/auth.service";
 import Link from "next/link";
 import { ResponseType } from "../../types/response.type";
 import { Alert, AlertDescription } from "./ui/alert";
+import { Loader2 } from "lucide-react";
 export function LoginForm({
   className,
   ...props
@@ -134,7 +135,14 @@ export function LoginForm({
               </Field>
               <Field>
                 <Button type="submit" disabled={isLoading}>
-                  {isLoading ? "Memproses..." : "Login"}
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      <span>Memproses...</span>
+                    </>
+                  ) : (
+                    "Login"
+                  )}
                 </Button>
                 <FieldDescription className="text-center">
                   Don&apos;t have an account?{" "}

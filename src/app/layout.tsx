@@ -8,7 +8,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
-  title: "Template NextJs - Admin Dashboard",
+  title: "NextJs Template - Dashboard",
   description: "M Hamdan Yusuf",
 };
 

@@ -26,21 +26,23 @@ import {
   PieChartIcon,
   MapIcon,
   TerminalIcon,
+  LayoutDashboardIcon,
 } from "lucide-react";
 import { useAuthStore } from "../../stores/auth.store";
 
 const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
   navMain: [
+    {
+      title: "Dashboard",
+      url: "/dashboard",
+      icon: <LayoutDashboardIcon />,
+      isActive: true,
+      items: [],
+    },
     {
       title: "Playground",
       url: "#",
       icon: <TerminalSquareIcon />,
-      isActive: true,
       items: [
         {
           title: "History",
@@ -104,12 +106,12 @@ const data = {
       icon: <Settings2Icon />,
       items: [
         {
-          title: "General",
-          url: "#",
+          title: "Users",
+          url: "/users",
         },
         {
-          title: "Team",
-          url: "#",
+          title: "Users Access",
+          url: "/users-access",
         },
         {
           title: "Billing",
@@ -165,7 +167,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   <TerminalIcon className="size-4" />
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">Acme Inc</span>
+                  <span className="truncate font-medium">Mhy.ne_</span>
                   <span className="truncate text-xs">Enterprise</span>
                 </div>
               </a>
@@ -175,7 +177,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-        <NavProjects projects={data.projects} />
+        {/* <NavProjects projects={data.projects} /> */}
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>

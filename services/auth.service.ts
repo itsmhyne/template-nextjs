@@ -12,6 +12,7 @@ import {
 import { prisma } from "../lib/prisma";
 import { hashPassword, verifyPassword } from "../lib/auth.password";
 import { ResponseType } from "../types/response.type";
+import { revalidatePath } from "next/cache";
 
 const loginSchema = z.object({
   email: z.string().email("Email tidak valid"),
@@ -153,4 +154,37 @@ export async function logoutAction(): Promise<ResponseType> {
 export async function getCurrentUser() {
   const session = await getSession();
   return session?.user || null;
+}
+
+// services/user.service.ts
+// ... existing code
+
+// Reset password user
+export async function resetUserPassword(id: string, newPassword: string) {
+  try {
+    const existingUser = await prisma.user.findUnique({
+      where: { id },
+    });
+
+    if (!existingUser) {
+      return { success: false, error: "User tidak ditemukan" };
+    }
+
+    if (newPassword.length < 6) {
+      return { success: false, error: "Password minimal 6 karakter" };
+    }
+
+    const hashedPassword = await hashPassword(newPassword);
+
+    await prisma.user.update({
+      where: { id },
+      data: { password: hashedPassword },
+    });
+
+    revalidatePath("/users");
+    return { success: true };
+  } catch (error) {
+    console.error("Reset password error:", error);
+    return { success: false, error: "Gagal mereset password" };
+  }
 }
